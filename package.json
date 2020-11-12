@@ -1,0 +1,31 @@
+{
+  "name": "pos-pts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "postbuild": "next-on-netlify",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/data-grid": "^4.0.0-alpha.9",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@material-ui/pickers": "^3.2.10",
+    "firebase": "^8.0.1",
+    "firebase-admin": "^9.3.0",
+    "next": "10.0.1",
+    "next-on-netlify": "^2.6.0",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-firebase-hooks": "^2.2.0",
+    "recoil": "^0.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.6",
+    "@types/react": "^16.9.56",
+    "typescript": "^4.0.5"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "predeploy": [
+      "pnpm --prefix \"$RESOURCE_DIR\" run lint",
+      "pnpm --prefix \"$RESOURCE_DIR\" run build"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+.fabEdit {
+  position: fixed !important;
+  bottom: 16px;
+  right: 136px;
+}
+
+.fabDelete {
+  position: fixed !important;
+  bottom: 16px;
+  right: 76px;
+}
+
+.fabAdd {
+  position: fixed !important;
+  bottom: 16px;
+  right: 16px;
+}
+
+.dataGrid {
+  height: 80vh !important;
+}

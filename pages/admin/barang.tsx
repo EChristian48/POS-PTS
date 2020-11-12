@@ -30,6 +30,7 @@ import 'firebase/firestore'
 import admin from 'firebase-admin'
 import { GetServerSideProps, NextPage } from 'next'
 import { ChangeEvent, Key, useEffect, useState } from 'react'
+import CRUDButtons from '@root/components/CRUDButtons'
 
 const columns: ColDef[] = [
   { field: 'nama', width: 150, headerName: 'Nama' },
@@ -41,17 +42,18 @@ const columns: ColDef[] = [
 ]
 
 type BarangProps = {
-  distributors: Distributor[]
+  distributors: { id: Key; distributor: Distributor }[]
 }
 
 const Barang: NextPage<BarangProps> = ({ distributors }) => {
   const [isDialogOpen, openDialog, closeDialog] = useToggler()
-  const [isEditDialogOpen, openEditDialog, closeEditDialog] = useToggler()
-  const [isLoading, startLoading, stopLoading] = useToggler(true)
+  const [isLoading, startLoading, stopLoading] = useToggler(false)
 
   const [barangs, setBarangs] = useState<
     firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[]
   >([])
+
+  const [mode, setMode] = useState<'edit' | 'create'>('create')
 
   const [nama, setNama, clearNama] = useControlledInput()
   const [merk, setMerk, clearMerk] = useControlledInput()
@@ -82,28 +84,11 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
     firebase
       .firestore()
       .collection('barang')
-      .onSnapshot(snapshot => {
-        stopLoading()
-        setBarangs(snapshot.docs)
-      })
+      .onSnapshot(snapshot => setBarangs(snapshot.docs))
 
-  function saveBarang() {
-    const data: BarangType = {
-      harga: parseInt(harga),
-      merk,
-      nama,
-      stok: 0,
-      ket,
-      distributor: JSON.parse(distributor),
-    }
-
-    firebase.firestore().collection('barang').add(data)
-    closeDialog()
-    clearAll()
-  }
-
-  function deleteSelections() {
-    Promise.allSettled(
+  async function deleteSelections() {
+    startLoading()
+    await Promise.allSettled(
       selection.map(selected =>
         firebase
           .firestore()
@@ -112,26 +97,39 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
           .delete()
       )
     )
+    stopLoading()
   }
 
-  function editSelection() {
+  function saveBarang() {
     const data: BarangType = {
       harga: parseInt(harga),
       merk,
       nama,
-      stok: parseInt(stok),
+      stok: mode === 'create' ? 0 : parseInt(stok),
       ket,
       distributor: JSON.parse(distributor),
     }
 
-    firebase
-      .firestore()
-      .collection('barang')
-      .doc(selection[0].toString())
-      .set(data)
+    mode === 'create'
+      ? firebase.firestore().collection('barang').add(data)
+      : firebase
+          .firestore()
+          .collection('barang')
+          .doc(selection[0].toString())
+          .set(data)
 
-    closeEditDialog()
+    closeDialog()
     clearAll()
+  }
+
+  function openEditDialog() {
+    setMode('edit')
+    openDialog()
+  }
+
+  function openSaveDialog() {
+    setMode('create')
+    openDialog()
   }
 
   useEffect(() => {
@@ -161,6 +159,8 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
                     const displayData: RowData & BarangType = {
                       id: snapshot.id,
                       ...barang,
+                      distributor: ((barang.distributor as unknown) as Distributor)
+                        .nama,
                     }
 
                     return displayData
@@ -214,20 +214,26 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
             className={utils.marginBot2}
           />
 
+          {mode === 'edit' && (
+            <DefaultInput
+              type='number'
+              label='Stok'
+              fullWidth
+              value={stok}
+              onChange={setStok}
+              className={utils.marginBot2}
+            />
+          )}
+
           <FormControl
             variant='filled'
             className={classes.formControl}
             fullWidth
           >
-            <InputLabel>Age</InputLabel>
-            <Select
-              labelId='demo-simple-select-filled-label'
-              id='demo-simple-select-filled'
-              value={distributor}
-              onChange={handleDistributorChange}
-            >
-              {distributors.map(distributor => (
-                <MenuItem value={JSON.stringify(distributor)}>
+            <InputLabel>Distributor</InputLabel>
+            <Select value={distributor} onChange={handleDistributorChange}>
+              {distributors.map(({ distributor, id }) => (
+                <MenuItem value={JSON.stringify(distributor)} key={id}>
                   {distributor.nama}
                 </MenuItem>
               ))}
@@ -241,125 +247,25 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={isEditDialogOpen} onClose={closeEditDialog}>
-        <DialogTitle>Tambah Barang</DialogTitle>
-
-        <DialogContent>
-          <DefaultInput
-            label='Nama'
-            fullWidth
-            className={utils.marginBot2}
-            value={nama}
-            onChange={setNama}
-          />
-
-          <DefaultInput
-            label='Merk'
-            fullWidth
-            className={utils.marginBot2}
-            value={merk}
-            onChange={setMerk}
-          />
-
-          <DefaultInput
-            type='number'
-            label='Harga'
-            fullWidth
-            value={harga}
-            onChange={setHarga}
-            className={utils.marginBot2}
-          />
-
-          <DefaultInput
-            type='number'
-            label='Stok'
-            fullWidth
-            value={stok}
-            onChange={setStok}
-            className={utils.marginBot2}
-          />
-
-          <DefaultInput
-            label='Keterangan'
-            fullWidth
-            value={ket}
-            onChange={setKet}
-            className={utils.marginBot2}
-          />
-
-          <FormControl
-            variant='filled'
-            className={classes.formControl}
-            fullWidth
-          >
-            <InputLabel>Distributor</InputLabel>
-            <Select
-              labelId='demo-simple-select-filled-label'
-              id='demo-simple-select-filled'
-              value={distributor}
-              onChange={handleDistributorChange}
-            >
-              {distributors.map(distributor => (
-                <MenuItem value={JSON.stringify(distributor)}>
-                  {distributor.nama}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={editSelection}>Save</Button>
-          <Button onClick={closeDialog}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Zoom in={canBeEdited}>
-        <Fab
-          className={`${classes.fabEdit} ${utils.lolz}`}
-          onClick={openEditDialog}
-          size='medium'
-        >
-          <Create />
-        </Fab>
-      </Zoom>
-
-      <Zoom in={canBeDeleted}>
-        <Fab
-          className={`${classes.fabDelete} ${utils.lolz}`}
-          onClick={deleteSelections}
-          size='medium'
-        >
-          <Delete />
-        </Fab>
-      </Zoom>
-
-      <Fab
-        className={`${classes.fabAdd} ${utils.lolz}`}
-        onClick={openDialog}
-        size='medium'
-      >
-        <Add />
-      </Fab>
+      <CRUDButtons
+        deleteTrigger={canBeDeleted}
+        editTrigger={canBeEdited}
+        onDelete={deleteSelections}
+        onEdit={openEditDialog}
+        onSave={openSaveDialog}
+      />
     </NeedRole>
   )
 }
 
 export default Barang
 
-const serviceAccount = require('@root/serviceAccount')
-
 export const getServerSideProps: GetServerSideProps<BarangProps> = async () => {
-  if (!admin.apps.length)
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: 'https://point-of-sales-pts.firebaseio.com',
-    })
-
-  const db = admin.firestore()
-
-  const snapshot = await db.collection('distributor').get()
-  const distributors = snapshot.docs.map(doc => doc.data() as Distributor)
+  const snapshot = await firebase.firestore().collection('distributor').get()
+  const distributors = snapshot.docs.map(doc => ({
+    id: doc.id,
+    distributor: doc.data() as Distributor,
+  }))
 
   return {
     props: {

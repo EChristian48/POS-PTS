@@ -51,9 +51,7 @@ export default function Distributor() {
     firebase
       .firestore()
       .collection('distributor')
-      .onSnapshot(snapshot => {
-        setDistributors(snapshot.docs)
-      })
+      .onSnapshot(snapshot => setDistributors(snapshot.docs))
 
   async function deleteSelections() {
     startLoading()
@@ -76,15 +74,13 @@ export default function Distributor() {
       nama,
     }
 
-    if (mode === 'create') {
-      firebase.firestore().collection('distributor').add(data)
-    } else {
-      firebase
-        .firestore()
-        .collection('distributor')
-        .doc(selection[0].toString())
-        .set(data)
-    }
+    mode === 'create'
+      ? firebase.firestore().collection('distributor').add(data)
+      : firebase
+          .firestore()
+          .collection('distributor')
+          .doc(selection[0].toString())
+          .set(data)
 
     closeDialog()
   }

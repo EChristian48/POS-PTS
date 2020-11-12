@@ -10,7 +10,7 @@ export type Role = 'admin' | 'kasir' | 'manajer'
 export type Barang = {
   nama: string
   merk: string
-  distributor: Distributor
+  distributor: Distributor | string
   harga: number
   stok: number
   ket?: string

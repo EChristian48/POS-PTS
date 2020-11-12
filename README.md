@@ -11,12 +11,18 @@ pnpm install
 firebase deploy
 ```
 
-JANGAN LUPA DOWNLOAD SERVICE ACCOUNT, TARO DI ROOT.  
-NAMAIN `serviceAccount.json`.  
-FIREBASE CONFIG JUGA UBAH SENDIRI, DAH GEDE KAN? MANDIRI KAN?
-
 SISANYA SILAHKAN DEPLOY SENDIRI KE NETLIFY.  
 UDAH STRESS YANG BIKIN, USAHAIN GA USAH NANYA LAGI.  
 MAKASIH.
 
 GA MAU DEPLOY? `yarn dev`
+
+List role
+
+1. admin
+2. kasir
+3. manajer
+
+**Semua huruf kecil**  
+Username: (role)@(role).com  
+Password: password

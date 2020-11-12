@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "cd functions/ && npm i -g pnpm && pnpm install && cd .. && next build",
     "postbuild": "next-on-netlify",
     "start": "next start"
   },

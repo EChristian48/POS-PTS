@@ -1,6 +1,6 @@
 # POS BUAT PTS
 
-## GA ADA NODE? GA USAH DOWNLOAD.
+## GA ADA NODE? GA USAH DOWNLOAD
 
 ```bash
 npm i -g yarn pnpm firebase-tools

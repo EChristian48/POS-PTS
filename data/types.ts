@@ -29,12 +29,13 @@ export type Distributor = {
   noTelp: string
 }
 export type Transaksi = {
-  barangTransaksi: BarangTransaksi
+  barangTransaksi: BarangTransaksi[]
   totalHarga: number
   tangal: firebase.firestore.FieldValue | Date
 }
 
 export type BarangTransaksi = {
+  id: string
   nama: string
   harga: number
   jumlah: number

@@ -29,7 +29,7 @@ const NeedRole: FC<{ role: Role }> = ({ children, role }) => {
 
     if (userData.role !== role) {
       startRedirect()
-      router.replace('/')
+      router.replace(`/${userData.role}`)
     }
   }
 

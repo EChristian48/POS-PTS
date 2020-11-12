@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 
-import { Barang, Restock, User } from './types'
+import { Barang, Restock, Transaksi, User } from './types'
 
 admin.initializeApp()
 
@@ -37,4 +37,21 @@ export const updateStok = functions.firestore
       .collection('barang')
       .doc(restock.idBarang)
       .set({ ...originalData, stok: originalData.stok + restock.jumlah })
+  })
+
+export const kurangiStok = functions.firestore
+  .document('transaksi/{transaksiId}')
+  .onCreate(async snap => {
+    const transaksi = snap.data() as Transaksi
+
+    for (const barang of transaksi.barangTransaksi) {
+      const barangRef = db.collection('barang').doc(barang.id)
+      db.runTransaction(async tr => {
+        const docSnap = await tr.get(barangRef)
+        const oldStock = (docSnap.data() as Barang).stok
+        const newStock = oldStock - barang.jumlah
+
+        return tr.update(barangRef, { stok: newStock })
+      })
+    }
   })

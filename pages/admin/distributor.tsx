@@ -20,7 +20,6 @@ import useToggler from '@root/hooks/useToggler'
 import classes from '@root/styles/admin/crud.module.css'
 import utils from '@root/styles/utils.module.css'
 import firebase from 'firebase/app'
-import 'firebase/firestore'
 import { Key, useEffect, useState } from 'react'
 
 const columns: ColDef[] = [

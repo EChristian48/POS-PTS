@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Fab,
   Grid,
@@ -15,15 +16,13 @@ import DefaultInput from '@root/components/DefaultInput'
 import NavWithDrawer from '@root/components/NavWithDrawer'
 import NeedRole from '@root/components/NeedRole'
 import { adminMenus } from '@root/data/menus'
-import { Barang, Restock as RestockType } from '@root/data/types'
+import { Barang, Distributor, Restock as RestockType } from '@root/data/types'
 import useControlledInput from '@root/hooks/useControlledInput'
 import useToggler from '@root/hooks/useToggler'
 import classes from '@root/styles/admin/crud.module.css'
 import utils from '@root/styles/utils.module.css'
-import admin from 'firebase-admin'
 import firebase from 'firebase/app'
-import 'firebase/firestore'
-import { GetServerSideProps, NextPage } from 'next'
+import { NextPage } from 'next'
 import { Key, useEffect, useState } from 'react'
 
 const columns: ColDef[] = [
@@ -35,39 +34,43 @@ const columns: ColDef[] = [
   { field: 'ket', width: 150, headerName: 'Keterangan' },
 ]
 
-type RestockProps = {
-  barang: { barang: Barang; id: Key }[]
-}
-
-const Restock: NextPage<RestockProps> = ({ barang }) => {
+const Restock: NextPage = () => {
   const [isEditDialogOpen, openEditDialog, closeEditDialog] = useToggler()
 
   const [stok, setStok, clearStok] = useControlledInput()
   const [selection, setSelection] = useState<Key[]>([])
+  const [barangs, setBarangs] = useState<
+    firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[]
+  >([])
 
   const [canBeEdited, showEdit, hideEdit] = useToggler()
 
-  function editSelection() {
-    const data: RestockType = {
-      idBarang: selection[0].toString(),
-      jumlah: parseInt(stok),
-      namaBarang: barang.find(brg => brg.id === selection[0].toString()).barang
-        .nama,
-      tanggalMasuk: firebase.firestore.FieldValue.serverTimestamp(),
-    }
-
+  const listenToBarangs = () =>
     firebase
       .firestore()
-      .collection('restock')
-      .doc(selection[0].toString())
-      .set(data)
+      .collection('barang')
+      .onSnapshot(snapshot => setBarangs(snapshot.docs))
 
-    closeEditDialog()
-  }
+  useEffect(() => listenToBarangs(), [])
 
   useEffect(() => {
     selection.length === 1 ? showEdit() : hideEdit()
   }, [selection])
+
+  function saveRestock() {
+    const data: RestockType = {
+      idBarang: selection[0].toString(),
+      jumlah: parseInt(stok),
+      namaBarang: (barangs
+        .find(barang => barang.id.toString() === selection[0].toString())
+        .data() as Barang).nama,
+      tanggalMasuk: firebase.firestore.FieldValue.serverTimestamp(),
+    }
+
+    firebase.firestore().collection('restock').add(data)
+    clearStok()
+    closeEditDialog()
+  }
 
   return (
     <NeedRole role='admin'>
@@ -78,10 +81,13 @@ const Restock: NextPage<RestockProps> = ({ barang }) => {
             <div className={utils.fullWidth}>
               <DataGrid
                 columns={columns}
-                rows={barang.map(brg => {
+                rows={barangs.map(snapshot => {
+                  const barang = snapshot.data() as Barang
+
                   const displayData: RowData & Barang = {
-                    id: brg.id,
-                    ...brg.barang,
+                    id: snapshot.id,
+                    ...barang,
+                    distributor: (barang.distributor as Distributor).nama,
                   }
 
                   return displayData
@@ -98,9 +104,11 @@ const Restock: NextPage<RestockProps> = ({ barang }) => {
       </Container>
 
       <Dialog open={isEditDialogOpen} onClose={closeEditDialog}>
-        <DialogTitle>Tambah Barang</DialogTitle>
+        <DialogTitle>Tambah Stok</DialogTitle>
 
         <DialogContent>
+          <DialogContentText>Kalo delay karena pake trigger</DialogContentText>
+
           <DefaultInput
             type='number'
             label='Stok'
@@ -112,8 +120,8 @@ const Restock: NextPage<RestockProps> = ({ barang }) => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={editSelection}>Save</Button>
-          <Button>Cancel</Button>
+          <Button onClick={saveRestock}>Save</Button>
+          <Button onClick={closeEditDialog}>Cancel</Button>
         </DialogActions>
       </Dialog>
 
@@ -131,27 +139,3 @@ const Restock: NextPage<RestockProps> = ({ barang }) => {
 }
 
 export default Restock
-
-const serviceAccount = require('@root/serviceAccount')
-
-export const getServerSideProps: GetServerSideProps<RestockProps> = async () => {
-  if (!admin.apps.length)
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-      databaseURL: 'https://point-of-sales-pts.firebaseio.com',
-    })
-
-  const db = admin.firestore()
-
-  const snapshot = await db.collection('barang').get()
-  const barang = snapshot.docs.map(doc => ({
-    barang: doc.data() as Barang,
-    id: doc.id,
-  }))
-
-  return {
-    props: {
-      barang,
-    },
-  }
-}

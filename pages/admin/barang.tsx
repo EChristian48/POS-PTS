@@ -6,16 +6,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Fab,
   FormControl,
   Grid,
   InputLabel,
   MenuItem,
   Select,
-  Zoom,
 } from '@material-ui/core'
 import { ColDef, DataGrid, RowData } from '@material-ui/data-grid'
-import { Add, Create, Delete } from '@material-ui/icons'
+import CRUDButtons from '@root/components/CRUDButtons'
 import DefaultInput from '@root/components/DefaultInput'
 import NavWithDrawer from '@root/components/NavWithDrawer'
 import NeedRole from '@root/components/NeedRole'
@@ -26,11 +24,8 @@ import useToggler from '@root/hooks/useToggler'
 import classes from '@root/styles/admin/crud.module.css'
 import utils from '@root/styles/utils.module.css'
 import firebase from 'firebase/app'
-import 'firebase/firestore'
-import admin from 'firebase-admin'
 import { GetServerSideProps, NextPage } from 'next'
 import { ChangeEvent, Key, useEffect, useState } from 'react'
-import CRUDButtons from '@root/components/CRUDButtons'
 
 const columns: ColDef[] = [
   { field: 'nama', width: 150, headerName: 'Nama' },
@@ -79,12 +74,6 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
     clearStok()
     clearKet()
   }
-
-  const listenToBarangs = () =>
-    firebase
-      .firestore()
-      .collection('barang')
-      .onSnapshot(snapshot => setBarangs(snapshot.docs))
 
   async function deleteSelections() {
     startLoading()
@@ -137,6 +126,12 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
     selection.length === 1 ? showEdit() : hideEdit()
   }, [selection])
 
+  const listenToBarangs = () =>
+    firebase
+      .firestore()
+      .collection('barang')
+      .onSnapshot(snapshot => setBarangs(snapshot.docs))
+
   useEffect(() => listenToBarangs(), [])
 
   return (
@@ -159,8 +154,7 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
                     const displayData: RowData & BarangType = {
                       id: snapshot.id,
                       ...barang,
-                      distributor: ((barang.distributor as unknown) as Distributor)
-                        .nama,
+                      distributor: (barang.distributor as Distributor).nama,
                     }
 
                     return displayData

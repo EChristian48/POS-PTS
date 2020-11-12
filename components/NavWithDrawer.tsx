@@ -13,12 +13,24 @@ import { Menu } from '@material-ui/icons'
 import { Menu as MenuType } from '@root/data/menus'
 import useToggler from '@root/hooks/useToggler'
 import classes from '@root/styles/components/NavWithDrawer.module.css'
+import firebase from 'firebase/app'
+import router from 'next/router'
 import { FC } from 'react'
+import LoadingPage from './LoadingPage'
 
 const NavWithDrawer: FC<{ menus: MenuType[] }> = ({ menus }) => {
   const [isDrawerOpen, openDrawer, closeDrawer] = useToggler()
+  const [isLoading, startLoading] = useToggler()
 
-  return (
+  async function logout() {
+    startLoading()
+    await firebase.auth().signOut()
+    router.push('/login')
+  }
+
+  return isLoading ? (
+    <LoadingPage>Logging out...</LoadingPage>
+  ) : (
     <>
       <AppBar position='sticky'>
         <Toolbar>
@@ -49,7 +61,7 @@ const NavWithDrawer: FC<{ menus: MenuType[] }> = ({ menus }) => {
               <ListItemText primary={menu.name} />
             </ListItem>
           ))}
-          <ListItem button component='a' href='/out'>
+          <ListItem button onClick={logout}>
             <ListItemText>Logout</ListItemText>
           </ListItem>
         </List>

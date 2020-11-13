@@ -17,3 +17,10 @@ export const adminMenus: Menu[] = [
 export const kasirMenus: Menu[] = [
   { href: '/kasir', name: 'Transaksi', icon: Money },
 ]
+
+export const manajerMenus: Menu[] = [
+  { icon: Save, name: 'Barang', href: '/manajer/barang' },
+  { icon: Add, name: 'Restock', href: '/manajer/restock' },
+  { icon: AccountCircle, name: 'Distributor', href: '/manajer/distributor' },
+  { href: '/manajer/transaksi', name: 'Transaksi', icon: Money },
+]

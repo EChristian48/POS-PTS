@@ -19,7 +19,7 @@ export type Barang = {
 export type Restock = {
   idBarang: string
   namaBarang: string
-  tanggalMasuk: firebase.firestore.FieldValue | Date
+  tanggalMasuk: firebase.firestore.FieldValue | Date | string
   jumlah: number
 }
 
@@ -31,7 +31,7 @@ export type Distributor = {
 export type Transaksi = {
   barangTransaksi: BarangTransaksi[]
   totalHarga: number
-  tangal: firebase.firestore.FieldValue | Date
+  tangal: firebase.firestore.FieldValue | Date | string
 }
 
 export type BarangTransaksi = {

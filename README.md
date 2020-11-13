@@ -1,28 +1,28 @@
-# POS BUAT PTS
+# Aplikasi POS untuk penambahan nilai PTS
 
-## GA ADA NODE? GA USAH DOWNLOAD
+## Cara Setup
 
-```bash
-npm i -g yarn pnpm firebase-tools
-firebase init
-yarn install
-cd functions/
-pnpm install
-firebase deploy
-```
+1. Buat Firebase project
+   1. Setup Firestore
+   1. Setup Auth (email & password)
+2. Clone project
+3. Ubah config Firebase di `firebase/init.ts`
+4. `npm i -g yarn pnpm`
+5. `yarn install`
+6. `cd functions/`
+7. `pnpm install`
+8. `firebase deploy`
 
-SISANYA SILAHKAN DEPLOY SENDIRI KE NETLIFY.  
-UDAH STRESS YANG BIKIN, USAHAIN GA USAH NANYA LAGI.  
-MAKASIH.
+Local development server: `yarn dev`
 
-GA MAU DEPLOY? `yarn dev`
+Or just use this button
 
-List role
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/EChristian48/POS-PTS)
 
-1. admin
-2. kasir
-3. manajer
+## List akun
 
-**Semua huruf kecil**  
-Username: (role)@(role).com  
-Password: password
+| Role    | E-Mail              | Password |
+| ------- | ------------------- | -------- |
+| Admin   | admin@admin.com     | password |
+| Kasir   | kasir@kasir.com     | password |
+| Manajer | manajer@manajer.com | password |

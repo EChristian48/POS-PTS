@@ -36,17 +36,15 @@ const columns: ColDef[] = [
   { field: 'ket', width: 150, headerName: 'Keterangan' },
 ]
 
-type BarangProps = {
-  distributors: { id: Key; distributor: Distributor }[]
-}
-
-const Barang: NextPage<BarangProps> = ({ distributors }) => {
+const Barang: NextPage = () => {
   const [isDialogOpen, openDialog, closeDialog] = useToggler()
   const [isLoading, startLoading, stopLoading] = useToggler(false)
 
   const [barangs, setBarangs] = useState<
     firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[]
   >([])
+
+  const [distributors, setDistributors] = useState<Distributor[]>([])
 
   const [mode, setMode] = useState<'edit' | 'create'>('create')
 
@@ -133,6 +131,16 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
       .onSnapshot(snapshot => setBarangs(snapshot.docs))
 
   useEffect(() => listenToBarangs(), [])
+
+  const listenToDistributors = () =>
+    firebase
+      .firestore()
+      .collection('distributor')
+      .onSnapshot(snapshot =>
+        setDistributors(snapshot.docs.map(doc => doc.data() as Distributor))
+      )
+
+  useEffect(() => listenToDistributors(), [])
 
   return (
     <NeedRole role='admin'>
@@ -226,8 +234,8 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
           >
             <InputLabel>Distributor</InputLabel>
             <Select value={distributor} onChange={handleDistributorChange}>
-              {distributors.map(({ distributor, id }) => (
-                <MenuItem value={JSON.stringify(distributor)} key={id}>
+              {distributors.map((distributor, index) => (
+                <MenuItem value={JSON.stringify(distributor)} key={index}>
                   {distributor.nama}
                 </MenuItem>
               ))}
@@ -253,17 +261,3 @@ const Barang: NextPage<BarangProps> = ({ distributors }) => {
 }
 
 export default Barang
-
-export const getServerSideProps: GetServerSideProps<BarangProps> = async () => {
-  const snapshot = await firebase.firestore().collection('distributor').get()
-  const distributors = snapshot.docs.map(doc => ({
-    id: doc.id,
-    distributor: doc.data() as Distributor,
-  }))
-
-  return {
-    props: {
-      distributors,
-    },
-  }
-}

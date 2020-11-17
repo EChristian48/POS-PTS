@@ -1,8 +1,9 @@
-import { useAuthState } from 'react-firebase-hooks/auth'
-import { FC, useEffect } from 'react'
 import useToggler from '@root/hooks/useToggler'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 import router from 'next/router'
+import { FC, useEffect } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
 import LoadingPage from './LoadingPage'
 
 const MustBeSignedOut: FC = ({ children }) => {

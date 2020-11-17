@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "cd functions/ && npm i -g pnpm && pnpm install && cd .. && next build",
+    "realbuild": "next build",
     "postbuild": "next-on-netlify",
     "start": "next start"
   },

@@ -7,7 +7,7 @@
    1. Setup Auth (email & password)
 2. Clone project
 3. Ubah config Firebase di `firebase/init.ts`
-4. `npm i -g yarn pnpm`
+4. `npm i -g yarn pnpm firebase-tools`
 5. `yarn install`
 6. `cd functions/`
 7. `pnpm install`
